@@ -20,15 +20,28 @@ import com.google.gson.JsonPrimitive;
 
 public class BtzgStringUtil {
 	
+	public static final String JSON_ARRAY_SEPERATOR = "_$_";
 	
+	/**
+	 * request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() +"/"
+	 * @param request
+	 * @return
+	 */
 	
 	public static String gotRealPath(HttpServletRequest request){
 		return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath() +"/";
 	}
 	
+	
+	/**
+	 * request.getScheme() + "://" + request.getServerName() + request.getContextPath() +"/"
+	 * @param request
+	 * @return
+	 */
 	public static String gotRealPathWithoutPort(HttpServletRequest request){
 		return request.getScheme() + "://" + request.getServerName() + request.getContextPath() +"/";
 	}
+	
 	
 	/**
 	 * 使用指定的字符数组，生成指定数量的指定长度的字符串，且字符串不重复
@@ -122,7 +135,7 @@ public class BtzgStringUtil {
             String fullkey = (null == parentKey || parentKey.trim().equals("")) ? key : parentKey.trim() + "." + key;
             //判断对象的类型，如果是空类型则安装空类型处理
             if (value.isJsonNull()){
-                map.put(fullkey,null);
+            	put(map, fullkey, null);
                 continue;
             //如果是JsonObject对象则递归处理
             }else if (value.isJsonObject()){
@@ -141,16 +154,16 @@ public class BtzgStringUtil {
                 try {
                     JsonElement element = new JsonParser().parse(value.getAsString());
                     if (element.isJsonNull()){
-                        map.put(fullkey,value.getAsString());
+                    	put(map, fullkey, value.getAsString());
                     }else if (element.isJsonObject()) {
                         parseJson2Map(map, element.getAsJsonObject(), fullkey);
                     } else if (element.isJsonPrimitive()) {
                         JsonPrimitive jsonPrimitive = element.getAsJsonPrimitive();
 
                         if (jsonPrimitive.isNumber()) {
-                            map.put(fullkey, jsonPrimitive.getAsNumber());
+                        	put(map, fullkey, jsonPrimitive.getAsNumber());
                         } else {
-                            map.put(fullkey, jsonPrimitive.getAsString());
+                        	put(map, fullkey, jsonPrimitive.getAsString());
                         }
                     } else if (element.isJsonArray()) {
                         JsonArray jsonArray = element.getAsJsonArray();
@@ -160,11 +173,24 @@ public class BtzgStringUtil {
                         }
                     }
                 }catch (Exception e){
-                    map.put(fullkey,value.getAsString());
+                    put(map,fullkey,value.getAsString());
                 }
             }
         }
     }
+	
+	public static void put(Map map,String key,Object value){
+		//put之前检测该key是否已经存在，存在则通过修改命名去重
+		int i =1;
+		while(map.containsKey(key)){
+			if(key.indexOf(JSON_ARRAY_SEPERATOR) != -1){
+				key = key.substring(0,key.indexOf(JSON_ARRAY_SEPERATOR));
+			}
+			key += JSON_ARRAY_SEPERATOR + i;
+			i++;
+		}
+		map.put(key, value);
+	}
 	
 	
 	public static void main(String[] args) {
