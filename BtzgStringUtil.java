@@ -2,6 +2,7 @@ package util;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -190,6 +191,10 @@ public class BtzgStringUtil {
 			i++;
 		}
 		map.put(key, value);
+	}
+	
+	public static String gotSecondsStr(){
+		return new Date().getTime()/1000+"";
 	}
 	
 	
