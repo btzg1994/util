@@ -1,0 +1,16 @@
+	OutputStream os = response.getOutputStream();
+			
+			String filename = "意向成为能人用户信息.csv";
+			filename = new String(filename.getBytes("UTF-8"),"ISO-8859-1");
+			response.setHeader("content-disposition", "attachment;filename="+filename);
+			
+			os.write(sb.toString().getBytes());
+			os.flush();
+			os.close();
+
+
+			byte[] b = new byte[1024];
+			int len = 0;
+			while((len=fis.read(b)) != -1){
+				os.write(b, 0, len);
+			}
